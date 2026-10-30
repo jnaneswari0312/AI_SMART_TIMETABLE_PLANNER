@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Timetable Planner</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
+<body><div class="shell">
+<header><div><p class="eyebrow">STUDY SMARTER</p><h1>AI Smart Timetable Planner</h1><p class="sub">Turn your deadlines and free time into a simple study plan.</p></div><div class="mark">✦</div></header>
+{% with messages = get_flashed_messages() %}{% if messages %}<div class="notice">{% for message in messages %}{{ message }}{% endfor %}</div>{% endif %}{% endwith %}
+<div class="stats"><div class="stat"><span>Study tasks</span><b>{{ tasks|length }}</b></div><div class="stat"><span>Free-time slots</span><b>{{ slots|length }}</b></div><div class="stat"><span>Planner</span><b>Ready</b></div></div>
+<div class="grid">
+<section class="panel"><h2>＋ Add a study task</h2><p class="muted">Add a subject, topic, deadline and estimated study time.</p>
+<form method="post" action="{{ url_for('add_task') }}">
+<label>Subject<input name="subject" placeholder="e.g. Mathematics" required></label>
+<label>Topic / task<input name="topic" placeholder="e.g. Unit 2 revision" required></label>
+<div class="two"><label>Deadline<input type="date" name="deadline" min="{{ today }}" required></label><label>Hours needed<input type="number" name="hours" min="0.5" step="0.5" placeholder="2" required></label></div>
+<label>Priority<select name="priority"><option>Medium</option><option>High</option><option>Low</option></select></label><button class="primary">Add task</button></form></section>
+<section class="panel"><h2>◷ Add your available time</h2><p class="muted">Tell the planner when you can study.</p>
+<form method="post" action="{{ url_for('add_availability') }}">
+<label>Day<select name="day" required><option value="">Choose a day</option>{% for d in ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'] %}<option>{{ d }}</option>{% endfor %}</select></label>
+<div class="two"><label>From<input type="time" name="start_time" required></label><label>To<input type="time" name="end_time" required></label></div><button class="secondary">Save available time</button></form>
+<div class="saved">{% for s in slots %}<div class="savedrow"><span>{{ s.day }} · {{ s.start_time }}–{{ s.end_time }}</span><form method="post" action="{{ url_for('delete-slot', slot_id=s.id) }}"><button class="remove">×</button></form></div>{% else %}<p class="muted small">Your available time slots will appear here.</p>{% endfor %}</div></section></div>
+<section class="panel taskpanel"><div class="sectionhead"><div><h2>Your study tasks</h2><p class="muted">Tasks are arranged by deadline.</p></div><a class="primary linkbtn" href="{{ url_for('generate') }}">Generate timetable →</a></div>
+{% for t in tasks %}<div class="task"><div><b>{{ t.subject }}</b><span>{{ t.topic }}</span></div><div class="taskmeta"><span>{{ t.deadline }}</span><span>{{ t.hours }} hrs</span><em class="{{ t.priority|lower }}">{{ t.priority }}</em><form method="post" action="{{ url_for('delete-task', task_id=t.id) }}"><button class="remove">×</button></form></div></div>{% else %}<div class="empty">No tasks yet. Add your first study task above.</div>{% endfor %}</section>
+<footer>Made to help you plan calmly and study consistently.</footer></div></body></html>
